@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
+import type React from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
 
 const scheduleData = [
   {
@@ -216,31 +215,35 @@ const scheduleData = [
     fastestLap: "1:13.040",
     image: "/images/lorenzo-podio3.png",
   },
-]
+];
 
 // Function to get a random trophy (1-9) based on an ID to keep it consistent per render
 const getRandomTrophy = (id: number | string) => {
   // Simple hash function to get a consistent number from string/number
-  const val = typeof id === "string" ? Number.parseInt(id.replace(/\D/g, "") || "0") : id
+  const val =
+    typeof id === "string" ? Number.parseInt(id.replace(/\D/g, "") || "0") : id;
   // Use modulo 9 + 1 to get 1-9
-  const trophyNum = (val % 9) + 1
-  return `/images/trofeus/trofeu${trophyNum}.svg`
-}
+  const trophyNum = (val % 9) + 1;
+  return `/images/trofeus/trofeu${trophyNum}.svg`;
+};
 
 export function InteractiveSchedule() {
-  const [hoveredEvent, setHoveredEvent] = useState<number | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [hoveredEvent, setHoveredEvent] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect()
+      const rect = containerRef.current.getBoundingClientRect();
       setCursorPos({
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
-      })
+      });
     }
-  }
+  };
 
   return (
     <div
@@ -270,7 +273,7 @@ export function InteractiveSchedule() {
                   <span className="font-(family-name:--font-oswald) font-bold text-3xl md:text-5xl text-white/40 group-hover:text-black relative z-10 opacity-100">
                     {item.round}
                   </span>
-                  
+
                   <div className="absolute top-1/2 left-0 w-12 md:w-16 h-6 md:h-8 -translate-y-1/2 z-20 pointer-events-none text-lorenzo-accent group-hover:text-black transition-colors">
                     <img
                       src="/images/trass.svg"
@@ -278,7 +281,6 @@ export function InteractiveSchedule() {
                       className="w-full h-full object-contain mix-blend-multiply"
                     />
                   </div>
-                  
                 </div>
 
                 <div className="col-span-4 flex items-center gap-3">
@@ -300,7 +302,10 @@ export function InteractiveSchedule() {
 
                 <div className="col-span-2 text-center flex justify-center items-center gap-2 md:gap-3">
                   <Image
-                    src={getRandomTrophy(item.id + item.location) || "/placeholder.svg"}
+                    src={
+                      getRandomTrophy(item.id + item.location) ||
+                      "/placeholder.svg"
+                    }
                     alt="Trophy"
                     width={32}
                     height={32}
@@ -320,32 +325,6 @@ export function InteractiveSchedule() {
           ))}
         </div>
       </div>
-
-      {/* <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50 w-75 md:w-100 aspect-3/4 mix-blend-normal">
-        <AnimatePresence mode="wait">
-          {hoveredEvent && (
-            <motion.div
-              key={hoveredEvent}
-              initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.9, rotate: 5 }}
-              transition={{ duration: 0.3, ease: "backOut" }}
-              className="w-full h-full relative rounded-xl overflow-hidden shadow-2xl"
-            >
-              <Image
-                src={scheduleData.find((d) => d.id === hoveredEvent)?.image || ""}
-                alt="Race preview"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-6 left-6">
-                <p className="text-lorenzo-accent font-bold uppercase tracking-widest text-sm">Track View</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div> */}
     </div>
-  )
+  );
 }
