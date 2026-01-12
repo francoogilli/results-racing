@@ -1,4 +1,4 @@
-type MotoGpEvent = {
+export type MotoGpEvent = {
   id: string;
   sequence: number;
   additional_name: string;
@@ -11,3 +11,14 @@ type MotoGpEvent = {
     path: string;
   }[];
 };
+
+export interface F1Meeting {
+  meeting_key: number;
+  meeting_name: string;
+  location: string;
+  country_name: string;
+  country_code: string;
+  date_start: string;
+  country_flag?: string;
+  circuit_image?: string;
+}

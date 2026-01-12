@@ -1,3 +1,5 @@
+import { MotoGpEvent } from "./types";
+
 const formatDate = (iso: string) => {
   const date = new Date(iso);
   return date
@@ -10,7 +12,26 @@ const formatDate = (iso: string) => {
 };
 
 export { formatDate };
-
+const countryNames: Record<string, string> = {
+  BR: "BRASIL",
+  AR: "ARGENTINA",
+  ES: "ESPAÑA",
+  IT: "ITALIA",
+  FR: "FRANCIA",
+  GB: "GRAN BRETAÑA",
+  US: "ESTADOS UNIDOS",
+  JP: "JAPÓN",
+  AU: "AUSTRALIA",
+  HU: "HUNGRÍA",
+  MY: "MALASIA",
+  TH: "TAILANDIA",
+  QA: "QATAR",
+  PT: "PORTUGAL",
+  NL: "PAÍSES BAJOS",
+  DE: "ALEMANIA",
+  CZ: "REPÚBLICA CHECA",
+  AT: "AUSTRIA",
+};
 export const mapEventToScheduleItem = (event: MotoGpEvent, index: number) => {
   const flag =
     event.assets?.find((a) => a.type === "FLAG")?.path ??
@@ -24,6 +45,18 @@ export const mapEventToScheduleItem = (event: MotoGpEvent, index: number) => {
     date: formatDate(event.date_start),
     finish: "--",
     fastestLap: "--",
-    additional_name: event.additional_name || "",
+    additional_name: countryNames[event.country] || event.additional_name,
+    country: event.country,
   };
 };
+
+export const hasEventPassed = (date: string) => {
+  const eventDate = new Date(date);
+  const now = new Date();
+
+  // Normalizamos para evitar problemas de horas
+  eventDate.setHours(23, 59, 59, 999);
+
+  return eventDate < now;
+};
+

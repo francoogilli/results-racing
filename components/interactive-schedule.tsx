@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import Image from "next/image";
-import { mapEventToScheduleItem } from "@/services";
+import { hasEventPassed, mapEventToScheduleItem } from "@/services";
 
 export function InteractiveSchedule() {
   const [scheduleData, setScheduleData] = useState<any[]>([]);
@@ -78,13 +79,15 @@ export function InteractiveSchedule() {
                     {item.round}
                   </span>
 
-                  <div className="absolute top-1/2 left-0 w-12 md:w-16 h-6 md:h-8 -translate-y-1/2 z-20 pointer-events-none text-lorenzo-accent group-hover:text-black transition-colors">
-                    <img
-                      src="/images/trass.svg"
-                      alt=""
-                      className="w-full h-full object-contain mix-blend-multiply"
-                    />
-                  </div>
+                  {hasEventPassed(item.date) && (
+                    <div className="absolute top-1/2 left-0 w-12 md:w-16 h-6 md:h-8 -translate-y-1/2 z-20 pointer-events-none transition-colors">
+                      <img
+                        src="/images/trass.svg"
+                        alt=""
+                        className="w-full h-full object-contain mix-blend-multiply"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="col-span-4 flex items-center gap-3">
