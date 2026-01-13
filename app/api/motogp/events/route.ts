@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const res = await fetch(
-    "https://api.pulselive.motogp.com/motogp/v1/events?seasonYear=2026",
+    "https://api.pulselive.motogp.com/motogp/v1/events?seasonYear=2025",
     {
       headers: {
         "User-Agent": "Mozilla/5.0",

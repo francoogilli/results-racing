@@ -13,6 +13,8 @@ export function InteractiveSchedule() {
     x: 0,
     y: 0,
   });
+  const [nextEventId, setNextEventId] = useState<string | number | null>(null);
+
   useEffect(() => {
     const fetchCalendar = async () => {
       const res = await fetch("/api/motogp/events");
@@ -27,7 +29,11 @@ export function InteractiveSchedule() {
   }, []);
 
   useEffect(() => {
-    console.log(scheduleData);
+    if (!scheduleData.length) return;
+
+    const nextEvent = scheduleData.find((event) => !hasEventPassed(event.date));
+
+    setNextEventId(nextEvent?.id ?? null);
   }, [scheduleData]);
 
   const getRandomTrophy = (id: number | string) => {
@@ -57,6 +63,18 @@ export function InteractiveSchedule() {
       className="w-full bg-[#111111] py-32 relative overflow-hidden"
     >
       <div className="container mx-auto px-4 relative z-10 max-w-7xl">
+        <div className="mb-16 relative">
+          <div className="absolute inset-0 bg-linear-to-r from-lime-500/10 via-transparent to-transparent blur-3xl"></div>
+          <h2 className="font-(family-name:--font-oswald) font-bold text-5xl md:text-7xl lg:text-8xl text-white uppercase tracking-tighter relative">
+            <span className="inline-block relative">
+              Calendario
+              <span className="absolute -bottom-2 left-0 w-24 h-1 bg-lime-400"></span>
+            </span>
+            <span className="block text-xl md:text-3xl text-white/40 font-normal mt-4 tracking-wide">
+              Temporada 2026
+            </span>
+          </h2>
+        </div>
         <div className="w-full">
           <div className="grid grid-cols-12 gap-4 mb-4 text-[10px] md:text-xs font-bold text-white/30 uppercase tracking-widest px-4">
             <div className="col-span-1">Round</div>
@@ -66,70 +84,93 @@ export function InteractiveSchedule() {
             <div className="col-span-2 text-right">Fastest Lap</div>
           </div>
 
-          {scheduleData.map((item) => (
-            <div
-              key={item.id}
-              onMouseEnter={() => setHoveredEvent(item.id)}
-              onMouseLeave={() => setHoveredEvent(null)}
-              className="group relative transition-all duration-300"
-            >
-              <div className="grid grid-cols-12 gap-4 py-4 md:py-6 px-4 group-hover:bg-lime-300 hover:cursor-pointer items-center border-t border-white/10 group-hover:bg-lorenzo-accent group-hover:border-transparent transition-colors duration-300">
-                <div className="col-span-1 relative">
-                  <span className="font-(family-name:--font-oswald) font-bold text-3xl md:text-5xl text-white/40 group-hover:text-black relative z-10 opacity-100">
-                    {item.round}
-                  </span>
+          {scheduleData.map((item) => {
+            const isNext = item.id === nextEventId;
 
-                  {hasEventPassed(item.date) && (
-                    <div className="absolute top-1/2 left-0 w-12 md:w-16 h-6 md:h-8 -translate-y-1/2 z-20 pointer-events-none transition-colors">
-                      <img
-                        src="/images/trass.svg"
-                        alt=""
-                        className="w-full h-full object-contain mix-blend-multiply"
-                      />
-                    </div>
-                  )}
-                </div>
+            return (
+              <div
+                key={item.id}
+                onMouseEnter={() => setHoveredEvent(item.id)}
+                onMouseLeave={() => setHoveredEvent(null)}
+                className="group relative transition-all duration-300"
+              >
+                {isNext && (
+                  <div className="absolute inset-0 bg-lime-400/20 blur-2xl opacity-60 pointer-events-none" />
+                )}
 
-                <div className="col-span-4 flex items-center gap-3">
-                  <Image
-                    src={item.flagImage || "/placeholder.svg"}
-                    alt={`${item.location} flag`}
-                    width={40}
-                    height={30}
-                    className="w-8 h-6 md:w-10 md:h-8 object-cover rounded-sm shadow-sm"
-                  />
-                  <span className="font-(family-name:--font-oswald) font-bold text-3xl text-white uppercase tracking-tighter leading-none group-hover:text-black transition-colors md:text-5xl">
-                    {item.additional_name}
-                  </span>
-                </div>
+                <div
+                  className={`
+                  relative z-10 grid grid-cols-12 gap-4 py-4 md:py-6 px-4 group-hover:bg-lime-300 items-center
+                  transition-colors duration-300 hover:cursor-pointer border-t
 
-                <div className="col-span-3 text-center font-(family-name:--font-oswald) font-bold text-xl md:text-4xl text-white/80 group-hover:text-black transition-colors uppercase">
-                  {item.date}
-                </div>
+                  ${
+                    isNext
+                      ? "bg-blue-400/10 border-blue-400/10"
+                      : "border-white/10"
+                  }
 
-                <div className="col-span-2 text-center flex justify-center items-center gap-2 md:gap-3">
-                  <Image
-                    src={
-                      getRandomTrophy(item.id + item.location) ||
-                      "/placeholder.svg"
-                    }
-                    alt="Trophy"
-                    width={32}
-                    height={32}
-                    className="size-8 md:w-10 md:h-10 group-hover:brightness-0 transition-all"
-                  />
-                  <span className="font-(family-name:--font-oswald) font-bold text-2xl md:text-4xl text-white group-hover:text-black italic">
-                    {item.finish}
-                  </span>
-                </div>
+                  group-hover:bg-lorenzo-accent group-hover:border-transparent
+                `}
+                >
+                  {/* ROUND */}
+                  <div className="col-span-1 relative">
+                    <span className="font-(family-name:--font-oswald) font-bold text-3xl md:text-5xl text-white/40 group-hover:text-black">
+                      {item.round}
+                    </span>
 
-                <div className="col-span-2 text-right font-(family-name:--font-oswald) font-bold text-lg md:text-2xl text-white group-hover:text-black">
-                  {item.fastestLap}
-                  <span className="text-xs align-top ml-1">S</span>
+                    {hasEventPassed(item.date) && (
+                      <div className="absolute top-1/2 left-0 w-12 md:w-16 h-6 md:h-8 -translate-y-1/2 z-20 pointer-events-none">
+                        <img
+                          src="/images/trass.svg"
+                          alt=""
+                          className="w-full h-full object-contain mix-blend-multiply"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* LOCATION */}
+                  <div className="col-span-4 flex items-center gap-3">
+                    <Image
+                      src={item.flagImage || "/placeholder.svg"}
+                      alt={`${item.location} flag`}
+                      width={40}
+                      height={30}
+                      className="w-8 h-6 md:w-10 md:h-8 object-cover rounded-sm shadow-sm"
+                    />
+                    <span className="font-(family-name:--font-oswald) font-bold text-3xl md:text-5xl text-white uppercase tracking-tighter group-hover:text-black">
+                      {item.additional_name}
+                    </span>
+                  </div>
+
+                  {/* DATE */}
+                  <div className="col-span-3 text-center font-(family-name:--font-oswald) font-bold text-xl md:text-4xl text-white/80 group-hover:text-black uppercase">
+                    {item.date}
+                  </div>
+
+                  {/* FINISH */}
+                  <div className="col-span-2 flex justify-center items-center gap-2 md:gap-3">
+                    <Image
+                      src={getRandomTrophy(item.id + item.location)}
+                      alt="Trophy"
+                      width={32}
+                      height={32}
+                      className="size-8 md:w-10 md:h-10 group-hover:brightness-0 transition-all"
+                    />
+                    <span className="font-(family-name:--font-oswald) font-bold text-2xl md:text-4xl text-white group-hover:text-black italic">
+                      {item.finish}
+                    </span>
+                  </div>
+
+                  {/* FASTEST LAP */}
+                  <div className="col-span-2 text-right font-(family-name:--font-oswald) font-bold text-lg md:text-2xl text-white group-hover:text-black">
+                    {item.fastestLap}
+                    <span className="text-xs align-top ml-1">S</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
