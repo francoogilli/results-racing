@@ -17,12 +17,29 @@ export function InteractiveSchedule() {
 
   useEffect(() => {
     const fetchCalendar = async () => {
-      const res = await fetch("/api/motogp/events");
-      const data = await res.json();
+      try {
+        const res = await fetch("/api/motogp/events");
 
-      const races = data.filter((event: any) => event.kind === "GP");
-      const mapped = races.map(mapEventToScheduleItem);
-      setScheduleData(mapped);
+        if (!res.ok) {
+          console.error("API error:", res.status);
+          return;
+        }
+
+        const text = await res.text();
+
+        if (!text) {
+          console.warn("API returned empty response");
+          return;
+        }
+
+        const data = JSON.parse(text);
+
+        const races = data.filter((event: any) => event.kind === "GP");
+        const mapped = races.map(mapEventToScheduleItem);
+        setScheduleData(mapped);
+      } catch (err) {
+        console.error("Failed to fetch calendar:", err);
+      }
     };
 
     fetchCalendar();
