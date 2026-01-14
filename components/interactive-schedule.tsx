@@ -15,36 +15,35 @@ export function InteractiveSchedule() {
   });
   const [nextEventId, setNextEventId] = useState<string | number | null>(null);
 
-useEffect(() => {
-  const fetchCalendar = async () => {
-    try {
-      const res = await fetch("/api/motogp/events");
+  useEffect(() => {
+    const fetchCalendar = async () => {
+      try {
+        const res = await fetch("/api/motogp/events");
 
-      if (!res.ok) {
-        console.error("API error:", res.status);
-        return;
+        if (!res.ok) {
+          console.error("API error:", res.status);
+          return;
+        }
+
+        const text = await res.text();
+
+        if (!text) {
+          console.warn("API returned empty response");
+          return;
+        }
+
+        const data = JSON.parse(text);
+
+        const races = data.filter((event: any) => event.kind === "GP");
+        const mapped = races.map(mapEventToScheduleItem);
+        setScheduleData(mapped);
+      } catch (err) {
+        console.error("Failed to fetch calendar:", err);
       }
+    };
 
-      const text = await res.text();
-
-      if (!text) {
-        console.warn("API returned empty response");
-        return;
-      }
-
-      const data = JSON.parse(text);
-
-      const races = data.filter((event: any) => event.kind === "GP");
-      const mapped = races.map(mapEventToScheduleItem);
-      setScheduleData(mapped);
-    } catch (err) {
-      console.error("Failed to fetch calendar:", err);
-    }
-  };
-
-  fetchCalendar();
-}, []);
-
+    fetchCalendar();
+  }, []);
 
   useEffect(() => {
     if (!scheduleData.length) return;
